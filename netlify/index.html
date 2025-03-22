@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Plan Generator</title>
+  <style>
+    .spg-container {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .spg-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f7f7f7;
+      border-radius: 8px;
+    }
+
+    .spg-section h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .spg-field-group {
+      margin-bottom: 12px;
+    }
+
+    .spg-field-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .spg-field-group input,
+    .spg-field-group select,
+    .spg-field-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .spg-field-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    #spg-generate,
+    #spg-back {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #spg-back {
+      background-color: #666;
+    }
+
+    #spg-generate:hover,
+    #spg-back:hover {
+      opacity: 0.9;
+    }
+
+    .spg-results-container {
+      margin-top: 20px;
+    }
+
+    .spg-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0066cc;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 2s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #spg-result {
+      overflow-x: auto;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    #spg-result svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 600px) {
+      .spg-container {
+        padding: 10px;
+      }
+      
+      .spg-section {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-plan-generator" class="spg-container">
+    <!-- Form Section -->
+    <div class="spg-form-container">
+      <h3>Site Plan Generator</h3>
+      <form id="spg-form">
+        <!-- Lot Information -->
+        <div class="spg-section">
+          <h4>Lot Information</h4>
+          <div class="spg-field-group">
+            <label for="spg-address">Property Address</label>
+            <input type="text" id="spg-address" name="address" placeholder="123 Main Street">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-lot-width">Lot Width (m)</label>
+            <input type="number" id="spg-lot-width" name="lotWidth" placeholder="16.5">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-lot-depth">Lot Depth (m)</label>
+            <input type="number" id="spg-lot-depth" name="lotDepth" placeholder="40.0">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-street-name">Street Name</label>
+            <input type="text" id="spg-street-name" name="streetName" placeholder="Main Street">
+          </div>
+        </div>
+
+        <!-- Zoning Information -->
+        <div class="spg-section">
+          <h4>Zoning Requirements</h4>
+          <div class="spg-field-group">
+            <label for="spg-zone">Zone Type</label>
+            <input type="text" id="spg-zone" name="zone" placeholder="R1">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-front-setback">Front Setback (m)</label>
+            <input type="number" id="spg-front-setback" name="frontSetback" placeholder="4.5">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-side-setback">Side Setbacks (m)</label>
+            <input type="number" id="spg-side-setback" name="sideSetback" placeholder="2.5">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-rear-setback">Rear Setback (m)</label>
+            <input type="number" id="spg-rear-setback" name="rearSetback" placeholder="3.0">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-lot-coverage">Maximum Lot Coverage (%)</label>
+            <input type="number" id="spg-lot-coverage" name="lotCoverage" placeholder="35">
+          </div>
+        </div>
+
+        <!-- Building Information -->
+        <div class="spg-section">
+          <h4>Building Information</h4>
+          <div class="spg-field-group">
+            <label for="spg-building-type">Building Type</label>
+            <select id="spg-building-type" name="buildingType">
+              <option value="single">Single Family</option>
+              <option value="duplex">Duplex</option>
+              <option value="multi">Multi-Unit</option>
+            </select>
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-num-units">Number of Units</label>
+            <input type="number" id="spg-num-units" name="numUnits" placeholder="1">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-num-floors">Number of Floors</label>
+            <input type="number" id="spg-num-floors" name="numFloors" placeholder="2">
+          </div>
+          <div class="spg-field-group">
+            <label for="spg-parking-spaces">Required Parking Spaces</label>
+            <input type="number" id="spg-parking-spaces" name="parkingSpaces" placeholder="2">
+          </div>
+        </div>
+
+        <!-- Additional Requests -->
+        <div class="spg-section">
+          <h4>Additional Requests (Optional)</h4>
+          <div class="spg-field-group">
+            <textarea id="spg-additional" name="additional" placeholder="Any specific requests or requirements for your site plan..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" id="spg-generate">Generate Site Plan</button>
+      </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="spg-results-container" style="display: none;">
+      <div id="spg-loading" style="display: none;">
+        <p>Generating your site plan...</p>
+        <div class="spg-spinner"></div>
+      </div>
+      <div id="spg-result">
+        <!-- SVG will be inserted here -->
+      </div>
+      <button id="spg-back">Edit Information</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        // Get form and result elements
+        const form = document.getElementById('spg-form');
+        const formContainer = document.querySelector('.spg-form-container');
+        const resultsContainer = document.querySelector('.spg-results-container');
+        const loadingIndicator = document.getElementById('spg-loading');
+        const resultDiv = document.getElementById('spg-result');
+        const backButton = document.getElementById('spg-back');
+        
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Show loading
+          formContainer.style.display = 'none';
+          resultsContainer.style.display = 'block';
+          loadingIndicator.style.display = 'block';
+          resultDiv.innerHTML = '';
+          
+          // Collect form data
+          const formData = new FormData(form);
+          const formDataObj = {};
+          
+          for (const [key, value] of formData.entries()) {
+            formDataObj[key] = value;
+          }
+          
+          // Format the prompt for Claude
+          const prompt = formatPromptForClaude(formDataObj);
+          
+          // Call the API
+          callClaudeAPI(prompt)
+            .then(svgCode => {
+              // Hide loading
+              loadingIndicator.style.display = 'none';
+              
+              // Display the SVG
+              resultDiv.innerHTML = svgCode;
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              loadingIndicator.style.display = 'none';
+              resultDiv.innerHTML = '<p>Sorry, there was an error generating your site plan. Please try again.</p>';
+            });
+        });
+        
+        // Back button handler
+        backButton.addEventListener('click', function() {
+          resultsContainer.style.display = 'none';
+          formContainer.style.display = 'block';
+        });
+        
+        // Function to format prompt for Claude
+        function formatPromptForClaude(formData) {
+          return `Please create a professional site plan drawing with the following specifications:
+
+    PROPERTY INFORMATION:
+    - Address: ${formData.address}
+    - Property dimensions: ${formData.lotWidth}m x ${formData.lotDepth}m
+    - Total lot area: ${(formData.lotWidth * formData.lotDepth).toFixed(1)}m²
+    - Street name: ${formData.streetName}
+
+    BUILDING INFORMATION:
+    - Building type: ${formData.buildingType}
+    - Number of units: ${formData.numUnits}
+    - Number of floors: ${formData.numFloors}
+    - Required parking spaces: ${formData.parkingSpaces}
+
+    SETBACKS:
+    - Front setback: ${formData.frontSetback}m
+    - Rear setback: ${formData.rearSetback}m
+    - Side setbacks: ${formData.sideSetback}m
+
+    ZONING INFORMATION:
+    - Zone designation: ${formData.zone}
+    - Maximum lot coverage: ${formData.lotCoverage}%
+
+    ADDITIONAL REQUESTS:
+    ${formData.additional}
+
+    Please create an SVG site plan drawing showing:
+    1. Property boundaries with dimensions
+    2. Setback lines
+    3. Building footprint that meets zoning requirements
+    4. Parking spaces and driveway
+    5. Street frontage
+    6. Include a title block, scale, and north arrow
+    7. Use consistent, professional styling with clear labels
+
+    Return only the SVG code without any explanation or additional text.`;
+        }
+        
+        // Function to call Claude API via Netlify function
+        async function callClaudeAPI(prompt) {
+          try {
+            const response = await fetch('/.netlify/functions/generate-site-plan', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt })
+            });
+            
+            if (!response.ok) {
+              throw new Error('API request failed');
+            }
+            
+            const data = await response.json();
+            return data.svg;
+          } catch (error) {
+            console.error('Error:', error);
+            throw error;
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
