@@ -102,6 +102,14 @@
       height: auto;
     }
 
+    .spg-error {
+      color: #e74c3c;
+      padding: 10px;
+      background: #fadbd8;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 600px) {
       .spg-container {
@@ -129,11 +137,11 @@
           </div>
           <div class="spg-field-group">
             <label for="spg-lot-width">Lot Width (m)</label>
-            <input type="number" id="spg-lot-width" name="lotWidth" placeholder="16.5">
+            <input type="number" id="spg-lot-width" name="lotWidth" placeholder="16.5" step="0.1">
           </div>
           <div class="spg-field-group">
             <label for="spg-lot-depth">Lot Depth (m)</label>
-            <input type="number" id="spg-lot-depth" name="lotDepth" placeholder="40.0">
+            <input type="number" id="spg-lot-depth" name="lotDepth" placeholder="40.0" step="0.1">
           </div>
           <div class="spg-field-group">
             <label for="spg-street-name">Street Name</label>
@@ -150,19 +158,19 @@
           </div>
           <div class="spg-field-group">
             <label for="spg-front-setback">Front Setback (m)</label>
-            <input type="number" id="spg-front-setback" name="frontSetback" placeholder="4.5">
+            <input type="number" id="spg-front-setback" name="frontSetback" placeholder="4.5" step="0.1">
           </div>
           <div class="spg-field-group">
             <label for="spg-side-setback">Side Setbacks (m)</label>
-            <input type="number" id="spg-side-setback" name="sideSetback" placeholder="2.5">
+            <input type="number" id="spg-side-setback" name="sideSetback" placeholder="2.5" step="0.1">
           </div>
           <div class="spg-field-group">
             <label for="spg-rear-setback">Rear Setback (m)</label>
-            <input type="number" id="spg-rear-setback" name="rearSetback" placeholder="3.0">
+            <input type="number" id="spg-rear-setback" name="rearSetback" placeholder="3.0" step="0.1">
           </div>
           <div class="spg-field-group">
             <label for="spg-lot-coverage">Maximum Lot Coverage (%)</label>
-            <input type="number" id="spg-lot-coverage" name="lotCoverage" placeholder="35">
+            <input type="number" id="spg-lot-coverage" name="lotCoverage" placeholder="35" step="0.1">
           </div>
         </div>
 
@@ -212,6 +220,9 @@
       <div id="spg-result">
         <!-- SVG will be inserted here -->
       </div>
+      <div id="spg-error" class="spg-error" style="display: none;">
+        Error message will be shown here
+      </div>
       <button id="spg-back">Edit Information</button>
     </div>
   </div>
@@ -226,6 +237,7 @@
         const resultsContainer = document.querySelector('.spg-results-container');
         const loadingIndicator = document.getElementById('spg-loading');
         const resultDiv = document.getElementById('spg-result');
+        const errorDiv = document.getElementById('spg-error');
         const backButton = document.getElementById('spg-back');
         
         // Form submission handler
@@ -237,6 +249,7 @@
           resultsContainer.style.display = 'block';
           loadingIndicator.style.display = 'block';
           resultDiv.innerHTML = '';
+          errorDiv.style.display = 'none';
           
           // Collect form data
           const formData = new FormData(form);
@@ -251,17 +264,28 @@
           
           // Call the API
           callClaudeAPI(prompt)
-            .then(svgCode => {
+            .then(result => {
               // Hide loading
               loadingIndicator.style.display = 'none';
               
-              // Display the SVG
-              resultDiv.innerHTML = svgCode;
+              if (result.error) {
+                // Show error message
+                errorDiv.textContent = result.error;
+                errorDiv.style.display = 'block';
+              } else if (result.svg) {
+                // Display the SVG
+                resultDiv.innerHTML = result.svg;
+              } else {
+                // No SVG found
+                errorDiv.textContent = "No valid SVG was generated. Please try again.";
+                errorDiv.style.display = 'block';
+              }
             })
             .catch(error => {
               console.error('Error:', error);
               loadingIndicator.style.display = 'none';
-              resultDiv.innerHTML = '<p>Sorry, there was an error generating your site plan. Please try again.</p>';
+              errorDiv.textContent = `Error: ${error.message || 'Failed to generate site plan'}`;
+              errorDiv.style.display = 'block';
             });
         });
         
@@ -273,42 +297,45 @@
         
         // Function to format prompt for Claude
         function formatPromptForClaude(formData) {
-          return `Please create a professional site plan drawing with the following specifications:
+          return `Generate an SVG site plan based on these specifications:
 
-    PROPERTY INFORMATION:
-    - Address: ${formData.address}
-    - Property dimensions: ${formData.lotWidth}m x ${formData.lotDepth}m
-    - Total lot area: ${(formData.lotWidth * formData.lotDepth).toFixed(1)}m²
-    - Street name: ${formData.streetName}
+PROPERTY INFORMATION:
+- Address: ${formData.address}
+- Property dimensions: ${formData.lotWidth}m x ${formData.lotDepth}m
+- Total lot area: ${(formData.lotWidth * formData.lotDepth).toFixed(1)}m²
+- Street name: ${formData.streetName}
 
-    BUILDING INFORMATION:
-    - Building type: ${formData.buildingType}
-    - Number of units: ${formData.numUnits}
-    - Number of floors: ${formData.numFloors}
-    - Required parking spaces: ${formData.parkingSpaces}
+BUILDING INFORMATION:
+- Building type: ${formData.buildingType}
+- Number of units: ${formData.numUnits}
+- Number of floors: ${formData.numFloors}
+- Required parking spaces: ${formData.parkingSpaces}
 
-    SETBACKS:
-    - Front setback: ${formData.frontSetback}m
-    - Rear setback: ${formData.rearSetback}m
-    - Side setbacks: ${formData.sideSetback}m
+SETBACKS:
+- Front setback: ${formData.frontSetback}m
+- Rear setback: ${formData.rearSetback}m
+- Side setbacks: ${formData.sideSetback}m
 
-    ZONING INFORMATION:
-    - Zone designation: ${formData.zone}
-    - Maximum lot coverage: ${formData.lotCoverage}%
+ZONING INFORMATION:
+- Zone designation: ${formData.zone}
+- Maximum lot coverage: ${formData.lotCoverage}%
 
-    ADDITIONAL REQUESTS:
-    ${formData.additional}
+ADDITIONAL REQUESTS:
+${formData.additional}
 
-    Please create an SVG site plan drawing showing:
-    1. Property boundaries with dimensions
-    2. Setback lines
-    3. Building footprint that meets zoning requirements
-    4. Parking spaces and driveway
-    5. Street frontage
-    6. Include a title block, scale, and north arrow
-    7. Use consistent, professional styling with clear labels
+IMPORTANT INSTRUCTIONS:
+1. Respond ONLY with SVG code - no explanations, no markdown, no other text
+2. Start your response with <svg and end with </svg>
+3. Create a professional site plan showing:
+   - Property boundaries with dimensions
+   - Setback lines
+   - Building footprint that meets zoning requirements
+   - Parking spaces and driveway
+   - Street frontage
+   - Title block, scale, and north arrow
+   - Clear labels and professional styling
 
-    Return only the SVG code without any explanation or additional text.`;
+I need ONLY the SVG code in your response, nothing else.`;
         }
         
         // Function to call Claude API via Netlify function
@@ -321,11 +348,11 @@
             });
             
             if (!response.ok) {
-              throw new Error('API request failed');
+              const errorText = await response.text();
+              throw new Error(`API request failed: ${errorText}`);
             }
             
-            const data = await response.json();
-            return data.svg;
+            return await response.json();
           } catch (error) {
             console.error('Error:', error);
             throw error;
