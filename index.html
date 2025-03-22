@@ -1,327 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Plan Generator</title>
-  <style>
-    .spg-container {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .spg-section {
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f7f7f7;
-      border-radius: 8px;
-    }
-
-    .spg-section h4 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      color: #333;
-    }
-
-    .spg-field-group {
-      margin-bottom: 12px;
-    }
-
-    .spg-field-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-
-    .spg-field-group input,
-    .spg-field-group select,
-    .spg-field-group textarea {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-
-    .spg-field-group textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    #spg-generate,
-    #spg-back {
-      background-color: #0066cc;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    #spg-back {
-      background-color: #666;
-    }
-
-    #spg-generate:hover,
-    #spg-back:hover {
-      opacity: 0.9;
-    }
-
-    .spg-results-container {
-      margin-top: 20px;
-    }
-
-    .spg-spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #0066cc;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 2s linear infinite;
-      margin: 20px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    #spg-result {
-      overflow-x: auto;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    #spg-result svg {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .spg-error {
-      color: #e74c3c;
-      padding: 10px;
-      background: #fadbd8;
-      border-radius: 4px;
-      margin: 10px 0;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 600px) {
-      .spg-container {
-        padding: 10px;
-      }
+<!-- Only showing the updated script section for brevity -->
+<script>
+  (function() {
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get form and result elements
+      const form = document.getElementById('spg-form');
+      const formContainer = document.querySelector('.spg-form-container');
+      const resultsContainer = document.querySelector('.spg-results-container');
+      const loadingIndicator = document.getElementById('spg-loading');
+      const resultDiv = document.getElementById('spg-result');
+      const errorDiv = document.getElementById('spg-error');
+      const backButton = document.getElementById('spg-back');
       
-      .spg-section {
-        padding: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="site-plan-generator" class="spg-container">
-    <!-- Form Section -->
-    <div class="spg-form-container">
-      <h3>Site Plan Generator</h3>
-      <form id="spg-form">
-        <!-- Lot Information -->
-        <div class="spg-section">
-          <h4>Lot Information</h4>
-          <div class="spg-field-group">
-            <label for="spg-address">Property Address</label>
-            <input type="text" id="spg-address" name="address" placeholder="123 Main Street">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-lot-width">Lot Width (m)</label>
-            <input type="number" id="spg-lot-width" name="lotWidth" placeholder="16.5" step="0.1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-lot-depth">Lot Depth (m)</label>
-            <input type="number" id="spg-lot-depth" name="lotDepth" placeholder="40.0" step="0.1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-street-name">Street Name</label>
-            <input type="text" id="spg-street-name" name="streetName" placeholder="Main Street">
-          </div>
-        </div>
-
-        <!-- Zoning Information -->
-        <div class="spg-section">
-          <h4>Zoning Requirements</h4>
-          <div class="spg-field-group">
-            <label for="spg-zone">Zone Type</label>
-            <input type="text" id="spg-zone" name="zone" placeholder="R1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-front-setback">Front Setback (m)</label>
-            <input type="number" id="spg-front-setback" name="frontSetback" placeholder="4.5" step="0.1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-side-setback">Side Setbacks (m)</label>
-            <input type="number" id="spg-side-setback" name="sideSetback" placeholder="2.5" step="0.1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-rear-setback">Rear Setback (m)</label>
-            <input type="number" id="spg-rear-setback" name="rearSetback" placeholder="3.0" step="0.1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-lot-coverage">Maximum Lot Coverage (%)</label>
-            <input type="number" id="spg-lot-coverage" name="lotCoverage" placeholder="35" step="0.1">
-          </div>
-        </div>
-
-        <!-- Building Information -->
-        <div class="spg-section">
-          <h4>Building Information</h4>
-          <div class="spg-field-group">
-            <label for="spg-building-type">Building Type</label>
-            <select id="spg-building-type" name="buildingType">
-              <option value="single">Single Family</option>
-              <option value="duplex">Duplex</option>
-              <option value="multi">Multi-Unit</option>
-            </select>
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-num-units">Number of Units</label>
-            <input type="number" id="spg-num-units" name="numUnits" placeholder="1">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-num-floors">Number of Floors</label>
-            <input type="number" id="spg-num-floors" name="numFloors" placeholder="2">
-          </div>
-          <div class="spg-field-group">
-            <label for="spg-parking-spaces">Required Parking Spaces</label>
-            <input type="number" id="spg-parking-spaces" name="parkingSpaces" placeholder="2">
-          </div>
-        </div>
-
-        <!-- Additional Requests -->
-        <div class="spg-section">
-          <h4>Additional Requests (Optional)</h4>
-          <div class="spg-field-group">
-            <textarea id="spg-additional" name="additional" placeholder="Any specific requests or requirements for your site plan..."></textarea>
-          </div>
-        </div>
-
-        <button type="submit" id="spg-generate">Generate Site Plan</button>
-      </form>
-    </div>
-
-    <!-- Results Section -->
-    <div class="spg-results-container" style="display: none;">
-      <div id="spg-loading" style="display: none;">
-        <p>Generating your site plan...</p>
-        <div class="spg-spinner"></div>
-      </div>
-      <div id="spg-result">
-        <!-- SVG will be inserted here -->
-      </div>
-      <div id="spg-error" class="spg-error" style="display: none;">
-        Error message will be shown here
-      </div>
-      <button id="spg-back">Edit Information</button>
-    </div>
-  </div>
-
-  <script>
-    (function() {
-      // Wait for DOM to be fully loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        // Get form and result elements
-        const form = document.getElementById('spg-form');
-        const formContainer = document.querySelector('.spg-form-container');
-        const resultsContainer = document.querySelector('.spg-results-container');
-        const loadingIndicator = document.getElementById('spg-loading');
-        const resultDiv = document.getElementById('spg-result');
-        const errorDiv = document.getElementById('spg-error');
-        const backButton = document.getElementById('spg-back');
+      // Form submission handler
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Form submission handler
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          
-          // Show loading
-          formContainer.style.display = 'none';
-          resultsContainer.style.display = 'block';
-          loadingIndicator.style.display = 'block';
-          resultDiv.innerHTML = '';
-          errorDiv.style.display = 'none';
-          
-          // Collect form data
-          const formData = new FormData(form);
-          const formDataObj = {};
-          
-          for (const [key, value] of formData.entries()) {
-            formDataObj[key] = value;
-          }
-          
-          // Format the prompt for Claude
-          const prompt = formatPromptForClaude(formDataObj);
-          
-          // Call the API
-          callClaudeAPI(prompt)
-            .then(result => {
-              // Hide loading
-              loadingIndicator.style.display = 'none';
-              
-              if (result.error) {
-                // Show error message
-                errorDiv.textContent = result.error;
-                errorDiv.style.display = 'block';
-              } else if (result.svg) {
-                // Display the SVG
-                resultDiv.innerHTML = result.svg;
-              } else {
-                // No SVG found
-                errorDiv.textContent = "No valid SVG was generated. Please try again.";
-                errorDiv.style.display = 'block';
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              loadingIndicator.style.display = 'none';
-              errorDiv.textContent = `Error: ${error.message || 'Failed to generate site plan'}`;
+        // Show loading
+        formContainer.style.display = 'none';
+        resultsContainer.style.display = 'block';
+        loadingIndicator.style.display = 'block';
+        resultDiv.innerHTML = '';
+        errorDiv.style.display = 'none';
+        
+        // Collect form data
+        const formData = new FormData(form);
+        const formDataObj = {};
+        
+        for (const [key, value] of formData.entries()) {
+          formDataObj[key] = value;
+        }
+        
+        // Format the prompt for Claude
+        const prompt = formatPromptForClaude(formDataObj);
+        
+        // Call the API with timeout handling
+        const apiTimeout = setTimeout(() => {
+          loadingIndicator.style.display = 'none';
+          errorDiv.textContent = "Request is taking longer than expected. Please wait or try again with simpler requirements.";
+          errorDiv.style.display = 'block';
+        }, 45000); // Show a message after 45 seconds
+        
+        callClaudeAPI(prompt)
+          .then(result => {
+            // Clear timeout
+            clearTimeout(apiTimeout);
+            
+            // Hide loading
+            loadingIndicator.style.display = 'none';
+            
+            if (result.error) {
+              // Show error message
+              errorDiv.textContent = result.error;
               errorDiv.style.display = 'block';
-            });
-        });
-        
-        // Back button handler
-        backButton.addEventListener('click', function() {
-          resultsContainer.style.display = 'none';
-          formContainer.style.display = 'block';
-        });
-        
-        // Function to format prompt for Claude
-        function formatPromptForClaude(formData) {
-          return `Generate an SVG site plan based on these specifications:
+            } else if (result.svg) {
+              // Display the SVG
+              resultDiv.innerHTML = result.svg;
+            } else {
+              // No SVG found
+              errorDiv.textContent = "No valid SVG was generated. Please try again with different specifications.";
+              errorDiv.style.display = 'block';
+            }
+          })
+          .catch(error => {
+            // Clear timeout
+            clearTimeout(apiTimeout);
+            
+            console.error('Error:', error);
+            loadingIndicator.style.display = 'none';
+            errorDiv.textContent = `Error: ${error.message || 'Failed to generate site plan. Please try again.'}`;
+            errorDiv.style.display = 'block';
+          });
+      });
+      
+      // Back button handler
+      backButton.addEventListener('click', function() {
+        resultsContainer.style.display = 'none';
+        formContainer.style.display = 'block';
+      });
+      
+      // Function to format prompt for Claude
+      function formatPromptForClaude(formData) {
+        return `Generate an SVG site plan based on these specifications:
 
 PROPERTY INFORMATION:
-- Address: ${formData.address}
-- Property dimensions: ${formData.lotWidth}m x ${formData.lotDepth}m
-- Total lot area: ${(formData.lotWidth * formData.lotDepth).toFixed(1)}m²
-- Street name: ${formData.streetName}
+- Address: ${formData.address || 'N/A'}
+- Property dimensions: ${formData.lotWidth || '0'}m x ${formData.lotDepth || '0'}m
+- Total lot area: ${((formData.lotWidth || 0) * (formData.lotDepth || 0)).toFixed(1)}m²
+- Street name: ${formData.streetName || 'N/A'}
 
 BUILDING INFORMATION:
-- Building type: ${formData.buildingType}
-- Number of units: ${formData.numUnits}
-- Number of floors: ${formData.numFloors}
-- Required parking spaces: ${formData.parkingSpaces}
+- Building type: ${formData.buildingType || 'single family'}
+- Number of units: ${formData.numUnits || '1'}
+- Number of floors: ${formData.numFloors || '1'}
+- Required parking spaces: ${formData.parkingSpaces || '1'}
 
 SETBACKS:
-- Front setback: ${formData.frontSetback}m
-- Rear setback: ${formData.rearSetback}m
-- Side setbacks: ${formData.sideSetback}m
+- Front setback: ${formData.frontSetback || '0'}m
+- Rear setback: ${formData.rearSetback || '0'}m
+- Side setbacks: ${formData.sideSetback || '0'}m
 
 ZONING INFORMATION:
-- Zone designation: ${formData.zone}
-- Maximum lot coverage: ${formData.lotCoverage}%
+- Zone designation: ${formData.zone || 'R1'}
+- Maximum lot coverage: ${formData.lotCoverage || '35'}%
 
 ADDITIONAL REQUESTS:
-${formData.additional}
+${formData.additional || 'None'}
 
 IMPORTANT INSTRUCTIONS:
 1. Respond ONLY with SVG code - no explanations, no markdown, no other text
@@ -336,30 +120,39 @@ IMPORTANT INSTRUCTIONS:
    - Clear labels and professional styling
 
 I need ONLY the SVG code in your response, nothing else.`;
+      }
+      
+      // Function to call Claude API via Vercel function
+      async function callClaudeAPI(prompt) {
+        try {
+          console.log("Calling API...");
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 55000); // Abort after 55s
+          
+          const response = await fetch('/api/generate-site-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt }),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            console.error("API Response not OK:", response.status);
+            const errorText = await response.text();
+            throw new Error(`API request failed: ${errorText}`);
+          }
+          
+          return await response.json();
+        } catch (error) {
+          console.error('Error in callClaudeAPI:', error);
+          if (error.name === 'AbortError') {
+            throw new Error('Request timed out. The site plan may be too complex or the server is busy.');
+          }
+          throw error;
         }
-        
-        // Function to call Claude API via Vercel function
-async function callClaudeAPI(prompt) {
-  try {
-    const response = await fetch('/api/generate-site-plan', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      }
     });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API request failed: ${errorText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
-  }
-}
-      });
-    })();
-  </script>
-</body>
-</html>
+  })();
+</script>
