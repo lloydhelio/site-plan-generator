@@ -338,26 +338,26 @@ IMPORTANT INSTRUCTIONS:
 I need ONLY the SVG code in your response, nothing else.`;
         }
         
-        // Function to call Claude API via Netlify function
-        async function callClaudeAPI(prompt) {
-          try {
-            const response = await fetch('/.netlify/functions/generate-site-plan', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ prompt })
-            });
-            
-            if (!response.ok) {
-              const errorText = await response.text();
-              throw new Error(`API request failed: ${errorText}`);
-            }
-            
-            return await response.json();
-          } catch (error) {
-            console.error('Error:', error);
-            throw error;
-          }
-        }
+        // Function to call Claude API via Vercel function
+async function callClaudeAPI(prompt) {
+  try {
+    const response = await fetch('/api/generate-site-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API request failed: ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
       });
     })();
   </script>

@@ -4,24 +4,10 @@
   "description": "A tool to generate site plans using Claude API",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
   },
-  "keywords": [
-    "site-plan",
-    "claude",
-    "svg"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
-    "axios": "^1.8.4"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lloydhelio/site-plan-generator.git"
-  },
-  "bugs": {
-    "url": "https://github.com/lloydhelio/site-plan-generator/issues"
-  },
-  "homepage": "https://github.com/lloydhelio/site-plan-generator#readme"
+    "axios": "^1.4.0"
+  }
 }
